@@ -1,10 +1,14 @@
 '''
 Usage:
-load single file:
-train_loader, test_loader,val_loader = loader()(subject=1,
-                                                batch_size= 20,
-                                                num_validation = 37)
+
+for single subject:
+train_loader, test_loader,val_loader, _ = loader()(subject=1,
+                                                 batch_size= 20,
+                                                 num_validation = 37)
 for all subjects: subject = "ALL"
+train_loader, test_loader,val_loader, test_loaders = loader()(subject="ALL",
+                                                 batch_size= 20,
+                                                 num_validation = 37)
 
 Data should be placed in the same folder
 '''
