@@ -43,7 +43,7 @@ class loader(object):
         X_train_valid = np.load("X_train_valid.npy")
         y_train_valid = np.load("y_train_valid.npy")
         person_test = np.load("person_test.npy")
-
+        
         # get data from different subjects
         X_train_valid_subs = {}
         y_train_valid_subs = {}
@@ -63,7 +63,11 @@ class loader(object):
         self.y_train_valid_subs = y_train_valid_subs
         self.X_test_subs = X_test_subs
         self.y_test_subs = y_test_subs
-
+        self.X_train_valid=X_train_valid[:,0:22,:]
+        self.y_train_valid=y_train_valid
+        self.X_test=X_test
+        self.y_test=y_test
+       
         # make the loader
         if subject != "ALL":
             self.getLoader(subject, num_validation)
@@ -73,8 +77,7 @@ class loader(object):
 
     def getAllDataSubject(self, num_validation):
         self.test_loaders = []
-
-        X_train = np.array([])
+        '''X_train = np.array([])
         y_train = np.array([])
         X_test = np.array([])
         y_test = np.array([])
@@ -102,8 +105,16 @@ class loader(object):
             X_test = np.concatenate((X_test, X_test_temp), axis=0) if X_test.size else X_test_temp
             y_test = np.concatenate((y_test, y_test_temp)) if y_test.size else y_test_temp
             X_val = np.concatenate((X_val, X_val_temp), axis=0) if X_val.size else X_val_temp
-            y_val = np.concatenate((y_val, y_val_temp)) if y_val.size else y_val_temp
-
+            y_val = np.concatenate((y_val, y_val_temp)) if y_val.size else y_val_temp'''
+                ################### change loading
+        sss1 = StratifiedShuffleSplit(n_splits=1, test_size=num_validation, random_state=0)
+        for train_index, test_index in sss1.split(self.X_train_valid, self.y_train_valid):
+            X_train, X_val = self.X_train_valid[train_index], self.X_train_valid[test_index]
+            y_train, y_val = self.y_train_valid[train_index], self.y_train_valid[test_index]
+        X_test = self.X_test[:,0:22,:]
+        y_test = self.y_test
+        
+        ####################
         print('Train data shape: ', X_train.shape)
         print('Train labels shape: ', y_train.shape)
         print('test data shape: ', X_test.shape)
@@ -114,10 +125,9 @@ class loader(object):
         X_train = (X_train - np.mean(X_train, axis=0)) / np.std(X_train, axis=0)
         X_test = (X_test - np.mean(X_test, axis=0)) / np.std(X_test, axis=0)
         X_val = (X_val - np.mean(X_val, axis=0)) / np.std(X_val, axis=0)
-
+        
         data_tensor = torch.Tensor(X_train.reshape(y_train.shape[0], 1, 22, 1000))
         target_tensor = torch.Tensor(y_train)
-
         dataset = TensorDataset(data_tensor, target_tensor)
 
         # train
@@ -128,18 +138,20 @@ class loader(object):
                                                         pin_memory=False, drop_last=False,
                                                         timeout=0, worker_init_fn=None)
 
+
         data_tensor = torch.Tensor(X_test.reshape(y_test.shape[0], 1, 22, 1000))
         target_tensor = torch.Tensor(y_test)
 
         # test
         dataset = TensorDataset(data_tensor, target_tensor)
-        self.test_loader = torch.utils.data.DataLoader(dataset, batch_size=50,
+        self.test_loader = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size,
                                                        shuffle=True, sampler=None,
                                                        batch_sampler=None,
                                                        num_workers=0,
                                                        pin_memory=False, drop_last=False,
                                                        timeout=0, worker_init_fn=None)
-
+        '''
+            
         for i in range(9):
             subject_num1 = "subject" + str(i + 1)
             X_test1 = self.X_test_subs[subject_num1]
@@ -154,10 +166,10 @@ class loader(object):
                                                            batch_sampler=None,
                                                            num_workers=0,
                                                            pin_memory=False, drop_last=False,
-                                                           timeout=0, worker_init_fn=None))
-
-            # validation
-        data_tensor = torch.Tensor(X_val.reshape(num_validation * 9, 1, 22, 1000))
+                                                           timeout=0, worker_init_fn=None))'''
+        # validation
+        #data_tensor = torch.Tensor(X_val.reshape(num_validation * 9, 1, 22, 1000))
+        data_tensor = torch.Tensor(X_val.reshape(num_validation , 1, 22, 1000))
         target_tensor = torch.Tensor(y_val)
 
         dataset = TensorDataset(data_tensor, target_tensor)
