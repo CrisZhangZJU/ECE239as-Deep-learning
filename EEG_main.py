@@ -3,7 +3,7 @@ import torchvision
 import torchvision.transforms as transoforms
 import torch.optim as optim
 from documents.load_data import *
-from utils import *
+# from utils import *
 from models import *
 import torch.nn as nn
 
@@ -15,7 +15,7 @@ start_epoch = 0  # start from epoch 0 or last checkpoint epoch
 # Data
 print(device)
 print('==> Preparing data..')
-train_loader, test_loader,val_loader, test_loaders = loader()(subject="ALL",
+train_loader, test_loader,val_loader, _ = loader()(subject="ALL",
                                                  batch_size= 20,
                                                  num_validation = 37)
 
@@ -37,7 +37,7 @@ if args.resume:
     checkpoint = torch.load('./checkpoint/ckpt.t7')
     net.load_state_dict(checkpoint['net'])
     best_acc = checkpoint['acc']
-    start_epoch = checkpoint['epoch']
+    # start_epoch = checkpoint['epoch']
 
 # Define a Loss function and optimizer
 criterion = nn.CrossEntropyLoss()
@@ -46,6 +46,7 @@ optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
 # Training 
 def train(epoch):
+	trainloader=train_loader
 	net.train()
 	train_loss = 0
 	correct = 0
@@ -63,15 +64,17 @@ def train(epoch):
 		optimizer.step()
 
 		# Print statistics 
-		running_loss += loss.item()
+        train_loss += loss.item()
 		_,predicted = outputs.max(1)
 		total += targets.size(0)
 		correct += predicted.eq(targets).sum().item()
         # progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
         #     % (train_loss/(batch_idx+1), 100.*correct/total, correct, total))
 
+    return [train_loss/(batch_idx+1),100.*correct/total]
+
 # Testing
-def test(epoch):
+def test(epoch, testloader=test_loader):
     global best_acc
     net.eval()
     test_loss = 0
@@ -121,17 +124,16 @@ def test(epoch):
 
     return [test_loss/(batch_idx+1),100.*correct/total]
 
+
 # Main 
 def main_train(epoches = 8):
     stats = {}
     stats['train'] = []
     stats['val']  = []
-
     epoches = range(epoches)
     for epoch in epoches:
-        train(epoch)
-        stats['train'].append(test(train_loader, mode='train'))
-        stats['val'].append(test(val_loader, mode='val'))
+        stats['train'].append(train(epoch))
+        stats['val'].append(test(epoch,testloader=val_loader))
 
     print('Test set result:')
     test(test_loader, mode = 'val')
