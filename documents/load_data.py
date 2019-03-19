@@ -92,8 +92,8 @@ class loader(object):
             subject_num = "subject" + str(i+1)
             X_train_valid_temp = self.X_train_valid_subs[subject_num]
             y_train_valid_temp = self.y_train_valid_subs[subject_num]
-            X_test_temp = self.X_test_subs[subject_num][1:30,:,:]
-            y_test_temp = self.y_test_subs[subject_num][1:30]
+            X_test_temp = self.X_test_subs[subject_num]
+            y_test_temp = self.y_test_subs[subject_num]
 
             y_train_valid_temp -= np.amin(y_train_valid_temp)
             y_test_temp -= np.amin(y_test_temp)

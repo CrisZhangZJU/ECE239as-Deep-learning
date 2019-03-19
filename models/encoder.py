@@ -465,7 +465,7 @@ class Model(nn.Module):
         :return: outputs : bsz,num_labels
         """
         bsz = x.size()[0]
-        print('input size',x.size())
+        # print('input size',x.size())
         if self.encoder_type == "BiGRU_last":
             encoder_outputs = self.rnn_encoder(x)
             last_hidden = encoder_outputs[:, -1, :]  # bsz*dim

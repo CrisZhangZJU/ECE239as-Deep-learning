@@ -40,7 +40,7 @@ class EncoderRNN(nn.Module):
         x = x.permute(2, 0, 1)
         # x=x.reshape(1000,20,22)
         # [num_positions,bsz, seq_len]
-        print("EncoderRNN before gru x size",x.size())
+        # print("EncoderRNN before gru x size",x.size())
         outputs, _ = self.gru(x)
         if self.bidirectional:
             # Sum bidirectional GRU outputs
@@ -85,7 +85,7 @@ class EncoderRNN0(nn.Module):
         bsz, num_positions, seq_len = x.size()
         x = x.permute(2, 0, 1)
         # [num_positions,bsz, seq_len]
-        print("EncoderRNN0 before gru x size",x.size())
+        # print("EncoderRNN0 before gru x size",x.size())
         outputs, _ = self.gru(x)
         if self.bidirectional:
             # Sum bidirectional GRU outputs
